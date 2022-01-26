@@ -1,9 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Model;
+using System.Collections.Generic;
 
 namespace Contexts
 {
-    public class AluraFlixContext : DbContext 
+    public class AluraFlixContext : DbContext
     {
         public DbSet<Videos> Videos { get; set; } //Nome da propriedade é o nome da tabela que o core entende.
 

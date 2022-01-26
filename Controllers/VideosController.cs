@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Contexts;
 using Microsoft.Extensions.DependencyInjection;
-
+using DAO;
 namespace Controllers{
 
     [ApiController]
@@ -14,11 +14,13 @@ namespace Controllers{
     public class VideosController : ControllerBase{
 
         private List<Videos> listaVideos { get; set; }
+        private AluraFlixDAO context { get; set; }  
 
         public VideosController()
         {
-            var context = new AluraFlixContext();
-            listaVideos = context.Videos.ToList();
+            context = new AluraFlixDAO();
+            listaVideos = context.GetVideos();
+            
         }
 
         [HttpGet]
@@ -29,20 +31,24 @@ namespace Controllers{
         }
 
         [HttpPost]
-        public string PostNovoVideo([FromBody] Videos novoVideo)
+        public string PostAdicionarVideo([FromBody] Videos novoVideo)
         {
-            using (var context = new AluraFlixContext())
+            try
             {
-                context.Videos.Add(novoVideo);
-                context.SaveChanges();
-                return $"Novo Vídeo {novoVideo.Titulo} foi adicionado com sucesso!";
+                context.AdicionarNovoVideo(novoVideo);
+                return $"O Video {novoVideo.Titulo} foi adicionado!";
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 
         [HttpGet("{id}")]
         public Videos retornaVideoPorID(int id)
         {
-             return listaVideos.First((video) => video.Id == id);
+             return context.GetVideos().First((video) => video.Id == id);
         }
         
     }
