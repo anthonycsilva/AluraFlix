@@ -3,7 +3,8 @@ using System;
 using Model;
 using System.Collections.Generic;
 using System.Linq;
-using Data;
+using Contexts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Controllers{
 
@@ -12,27 +13,36 @@ namespace Controllers{
 
     public class VideosController : ControllerBase{
 
-        List<Videos> listaVideos = new List<Videos>();
-        Videos videosObject =  new Videos("","","");
+        private List<Videos> listaVideos { get; set; }
 
-
-        public VideosController(){
+        public VideosController()
+        {
+            var context = new AluraFlixContext();
+            listaVideos = context.Videos.ToList();
         }
 
         [HttpGet]
-        public List<Videos> get(){
-            return videosObject.GetVideos("SELECT * FROM Videos");
-            
+
+        public List<Videos> recuperarListaDeLivros()
+        {
+            return listaVideos;
         }
 
-
         [HttpPost]
-        public string PostNovoVideo([FromBody] Videos novoVideo){
+        public string PostNovoVideo([FromBody] Videos novoVideo)
+        {
+            using (var context = new AluraFlixContext())
+            {
+                context.Videos.Add(novoVideo);
+                context.SaveChanges();
+                return $"Novo Vídeo {novoVideo.Titulo} foi adicionado com sucesso!";
+            }
+        }
 
-            VideosBanco videosBanco = new VideosBanco();
-            videosBanco.InsereNovoVideo(novoVideo); 
-
-            return "Video Foi inserido!";
+        [HttpGet("{id}")]
+        public Videos retornaVideoPorID(int id)
+        {
+             return listaVideos.First((video) => video.Id == id);
         }
         
     }
